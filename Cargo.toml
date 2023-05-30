@@ -1,0 +1,58 @@
+[package]
+name = "scrape-ct-log"
+description = "Tool to quickly and reliably mass-download entries from a Certificate Transparency log"
+license = "GPL-3.0-only"
+homepage = "https://github.com/mpalmer/scrape-ct-log"
+repository = "https://github.com/mpalmer/scrape-ct-log"
+include = [
+        "/LICENCE",
+        "/src/*.rs",
+]
+version = "0.0.0-git"
+authors = ["Matt Palmer <matt@hezmatt.org>"]
+keywords = ["security", "tls", "ssl", "https", "certificate"]
+categories = ["command-line-utilities"]
+edition = "2021"
+# If this is changed, .github/workflows/qa.yml build matrix needs updating as well
+rust-version = "1.60.0"
+
+[features]
+# If adding features, especially default features, ensure you update the
+# test matrices (matrixes?) in the CI workflows
+default = ["cbor"]
+cbor = ["dep:ciborium-ll", "dep:ciborium-io"]
+
+[profile.release]
+debug = 1
+
+[dependencies]
+base64 = "0.21"
+# Needed until https://github.com/enarx/ciborium/pull/85 lands
+ciborium-io = { version = "0.2.1", optional = true, features = ["std"] }
+ciborium-ll = { version = "0.2.1", optional = true, features = ["std"] }
+clap = { version = "4.0", features = ["derive"] }
+ct-structs = { git = "https://github.com/mpalmer/ct-structs" }
+gen_server = { git = "https://github.com/mpalmer/gen_server" }
+log = "0.4"
+num = "0.4"
+rand = "0.8"
+serde_json = "1.0"
+flexi_logger = { version = "0.25", features = ["is-terminal"] }
+thiserror = "1.0"
+ureq = "2.6"
+url = "2.3"
+
+[dev-dependencies]
+assert_cmd = "2.0"
+bytes = "1.1"
+ciborium = "0.2.1"
+hex-literal = "0.4"
+httptest = "0.15"
+http = "0.2"
+hyper = "0.14"
+itertools = "0.10"
+lazy_static = "1.4"
+mktemp = "0.5"
+predicates = "3.0"
+regex = "1.8"
+x509-parser = "0.15"

@@ -1,0 +1,142 @@
+name: Quality Control
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+            target/
+          key: ${{ runner.os }}-${{ steps.rust-install.outputs.cachekey }}-check
+
+      - name: Install rust
+        id: rust-install
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Check Formatting
+        run: |
+          cargo +${{ steps.rust-install.outputs.name }} fmt --check
+
+      - name: Check with Clippy
+        run: |
+          cargo +${{ steps.rust-install.outputs.name }} clippy -- -D warnings
+
+  build:
+    strategy:
+      matrix:
+        rust-toolchain:
+          - stable
+          - nightly
+          - 1.64.0
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+            target/
+          key: ${{ runner.os }}-${{ steps.rust-install.outputs.cachekey }}-build
+
+      - name: Install rust
+        id: rust-install
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust-toolchain }}
+
+      - name: Build
+        run: |
+          cargo +${{ steps.rust-install.outputs.name }} build --release
+          cargo +${{ steps.rust-install.outputs.name }} build --release --all-features
+          cargo +${{ steps.rust-install.outputs.name }} build --release --no-default-features
+          cargo +${{ steps.rust-install.outputs.name }} build --release --no-default-features --features cbor
+
+  test:
+    strategy:
+      matrix:
+        rust-toolchain:
+          - stable
+          - nightly
+        os:
+          - ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+            target/
+          key: ${{ runner.os }}-${{ steps.rust-install.outputs.cachekey }}-test
+
+      - name: Install rust
+        id: rust-install
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ matrix.rust-toolchain }}
+
+      - name: Test
+        run: |
+          cargo +${{ steps.rust-install.outputs.name }} test
+          cargo +${{ steps.rust-install.outputs.name }} test --all-features
+          cargo +${{ steps.rust-install.outputs.name }} test --no-default-features
+          cargo +${{ steps.rust-install.outputs.name }} test --no-default-features --features cbor
+
+  actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: true
+
+      - name: Install action-validator with asdf
+        uses: asdf-vm/actions/install@v2
+        with:
+          tool_versions: |
+            action-validator 0.5.1
+
+      - name: Lint Actions
+        run: |
+          find .github/workflows -type f \( -iname \*.yaml -o -iname \*.yml \) \
+            | xargs -I {} action-validator --verbose {}
