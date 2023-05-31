@@ -98,8 +98,6 @@ mod scrape_ct_log_tests;
 
 // library-only deps
 use base64 as _;
-use ciborium_io as _;
-use ciborium_ll as _;
 use ct_structs as _;
 use gen_server as _;
 use num as _;
@@ -107,3 +105,8 @@ use rand as _;
 use serde_json as _;
 use thiserror as _;
 use ureq as _;
+
+#[cfg(feature = "cbor")]
+use ciborium_io as _;
+#[cfg(feature = "cbor")]
+use ciborium_ll as _;

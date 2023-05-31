@@ -21,6 +21,7 @@ mod binary_deps {
 
 // This isn't actually *used* anywhere, but we need to specify it as a dep
 // so we can turn on the std feature
+#[cfg(feature = "cbor")]
 use ciborium_io as _;
 
 #[cfg(test)]
