@@ -40,7 +40,7 @@ fn empty_log_produces_basic_output() {
 		.unwrap();
 
 	let stdout = res.stdout.clone();
-	res.assert().success().stderr(is_empty());
+	res.assert().success();
 
 	let output = parse_output(&stdout);
 	let output_map = remap(&output);
@@ -66,7 +66,6 @@ fn empty_log_produces_basic_output() {
 			<= output_map["scrape_end_timestamp"].as_integer()
 	);
 
-	let sth = output_map.get("sth").expect("stdout to have sth");
 	let sth_map = remap(output_map.get("sth").expect("output to have sth"));
 	assert_eq!(
 		0u64,

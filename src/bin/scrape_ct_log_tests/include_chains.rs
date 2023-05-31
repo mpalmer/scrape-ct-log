@@ -1,9 +1,7 @@
 use assert_cmd::prelude::*;
-use base64::{engine::general_purpose::STANDARD_NO_PAD as b64, Engine as _};
 use predicates::str::is_empty;
 use serde_json::Value as SerdeValue;
 use std::time::Duration;
-use x509_parser::{certificate::X509Certificate, prelude::FromDer as _};
 
 use super::test_helpers::*;
 

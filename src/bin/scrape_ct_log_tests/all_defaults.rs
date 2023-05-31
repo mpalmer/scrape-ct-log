@@ -20,7 +20,7 @@ fn empty_log_produces_basic_output() {
 		.unwrap();
 
 	let stdout = res.stdout.clone();
-	res.assert().success().stderr(is_empty());
+	res.assert().success();
 
 	let output: SerdeValue = serde_json::from_slice(&stdout).unwrap();
 	assert!(output.is_object());

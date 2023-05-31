@@ -4,7 +4,6 @@ use hex_literal::hex;
 use predicates::str::is_empty;
 use serde_json::Value as SerdeValue;
 use std::time::Duration;
-use x509_parser::{certificate::X509Certificate, prelude::FromDer as _};
 
 use super::test_helpers::*;
 

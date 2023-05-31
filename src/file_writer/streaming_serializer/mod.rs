@@ -253,7 +253,7 @@ mod tests {
 		fn serialize_an_empty_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			s.string("").unwrap();
 			drop(s);
 
@@ -264,7 +264,7 @@ mod tests {
 		fn serialize_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			s.string("ohai!").unwrap();
 			drop(s);
 
@@ -275,7 +275,7 @@ mod tests {
 		fn serialize_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			s.bytes(b"ohai!").unwrap();
 			drop(s);
 
@@ -286,7 +286,7 @@ mod tests {
 		fn serialize_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			s.uint(420).unwrap();
 			drop(s);
 
@@ -297,8 +297,8 @@ mod tests {
 		fn serialize_an_empty_seq() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
-			let mut seq = s.seq().unwrap();
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let seq = s.seq().unwrap();
 			seq.end().unwrap();
 			drop(seq);
 			drop(s);
@@ -310,7 +310,7 @@ mod tests {
 		fn serialize_a_seq_with_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut seq = s.seq().unwrap();
 			seq.string("ohai!").unwrap();
 			seq.end().unwrap();
@@ -324,7 +324,7 @@ mod tests {
 		fn serialize_a_seq_with_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut seq = s.seq().unwrap();
 			seq.bytes(b"ohai!").unwrap();
 			seq.end().unwrap();
@@ -338,7 +338,7 @@ mod tests {
 		fn serialize_a_seq_with_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut seq = s.seq().unwrap();
 			seq.uint(420).unwrap();
 			seq.end().unwrap();
@@ -352,7 +352,7 @@ mod tests {
 		fn serialize_a_seq_with_a_bunch_of_stuff() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut seq = s.seq().unwrap();
 			seq.string("ohai!").unwrap();
 			seq.bytes(b"ohai!").unwrap();
@@ -379,8 +379,8 @@ mod tests {
 		fn serialize_an_empty_map() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
-			let mut map = s.map().unwrap();
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let map = s.map().unwrap();
 			map.end().unwrap();
 			drop(map);
 			drop(s);
@@ -392,7 +392,7 @@ mod tests {
 		fn serialize_a_map_with_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut map = s.map().unwrap();
 			map.key("string").unwrap();
 			map.string("ohai!").unwrap();
@@ -407,7 +407,7 @@ mod tests {
 		fn serialize_a_map_with_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut map = s.map().unwrap();
 			map.key("bytes").unwrap();
 			map.bytes(b"ohai!").unwrap();
@@ -422,7 +422,7 @@ mod tests {
 		fn serialize_a_map_with_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut map = s.map().unwrap();
 			map.key("uint").unwrap();
 			map.uint(420).unwrap();
@@ -437,7 +437,7 @@ mod tests {
 		fn serialize_a_map_with_a_bunch_of_stuff() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::JSON);
 			let mut map = s.map().unwrap();
 			map.key("string").unwrap();
 			map.string("ohai!").unwrap();
@@ -471,7 +471,7 @@ mod tests {
 		fn serialize_an_empty_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			s.string("").unwrap();
 			drop(s);
 
@@ -482,7 +482,7 @@ mod tests {
 		fn serialize_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			s.string("ohai!").unwrap();
 			drop(s);
 
@@ -493,7 +493,7 @@ mod tests {
 		fn serialize_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			s.bytes(b"ohai!").unwrap();
 			drop(s);
 
@@ -504,7 +504,7 @@ mod tests {
 		fn serialize_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			s.uint(420).unwrap();
 			drop(s);
 
@@ -515,8 +515,8 @@ mod tests {
 		fn serialize_an_empty_seq() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
-			let mut seq = s.seq().unwrap();
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let seq = s.seq().unwrap();
 			seq.end().unwrap();
 			drop(seq);
 			drop(s);
@@ -528,7 +528,7 @@ mod tests {
 		fn serialize_a_seq_with_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut seq = s.seq().unwrap();
 			seq.string("ohai!").unwrap();
 			seq.end().unwrap();
@@ -542,7 +542,7 @@ mod tests {
 		fn serialize_a_seq_with_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut seq = s.seq().unwrap();
 			seq.bytes(b"ohai!").unwrap();
 			seq.end().unwrap();
@@ -556,7 +556,7 @@ mod tests {
 		fn serialize_a_seq_with_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut seq = s.seq().unwrap();
 			seq.uint(420).unwrap();
 			seq.end().unwrap();
@@ -570,7 +570,7 @@ mod tests {
 		fn serialize_a_seq_with_a_bunch_of_stuff() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut seq = s.seq().unwrap();
 			seq.string("ohai!").unwrap();
 			seq.bytes(b"ohai!").unwrap();
@@ -595,8 +595,8 @@ mod tests {
 		fn serialize_an_empty_map() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
-			let mut map = s.map().unwrap();
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let map = s.map().unwrap();
 			map.end().unwrap();
 			drop(map);
 			drop(s);
@@ -608,7 +608,7 @@ mod tests {
 		fn serialize_a_map_with_a_string() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut map = s.map().unwrap();
 			map.key("string").unwrap();
 			map.string("ohai!").unwrap();
@@ -623,7 +623,7 @@ mod tests {
 		fn serialize_a_map_with_bytes() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut map = s.map().unwrap();
 			map.key("bytes").unwrap();
 			map.bytes(b"ohai!").unwrap();
@@ -638,7 +638,7 @@ mod tests {
 		fn serialize_a_map_with_a_uint() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut map = s.map().unwrap();
 			map.key("uint").unwrap();
 			map.uint(420).unwrap();
@@ -653,7 +653,7 @@ mod tests {
 		fn serialize_a_map_with_a_bunch_of_stuff() {
 			let mut buf = vec![];
 
-			let mut s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
+			let s = StreamingSerializer::new(&mut buf, StreamFormat::CBOR);
 			let mut map = s.map().unwrap();
 			map.key("string").unwrap();
 			map.string("ohai!").unwrap();
