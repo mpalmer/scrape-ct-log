@@ -167,8 +167,9 @@ impl Fetcher {
 			{
 				Ok(response) => {
 					let result: GetEntriesResponse =
-						serde_json::from_reader(response.into_reader())
-							.map_err(|e| Error::json_parse("get-entries response", e))?;
+						serde_json::from_reader(response.into_reader()).map_err(|e| {
+							Error::json_parse(format!("get-entries({range:?}) response"), e)
+						})?;
 					status.success()?;
 					retry_delay_millis = MIN_RETRY_DELAY_MILLIS;
 					retry_delay_scaling_millis = BASE_RETRY_SCALING_MILLIS;

@@ -210,6 +210,44 @@ fn x509_log_entry_is_properly_decoded() {
 }
 
 #[test]
+fn x509_log_entry_with_no_extra_data_is_properly_decoded() {
+	let log = faux_log(1..2);
+
+	let log_url = {
+		let mut mlog = log.lock().unwrap();
+
+		mlog.sth(1, 9876543210, vec![0u8; 32], vec![0u8; 64]);
+		mlog.add_entry(0, include_bytes!("x509_leaf_input"), b"\0\0\0");
+
+		mlog.url()
+	};
+
+	let res = cmd()
+		.timeout(Duration::from_secs(1))
+		.env("RUST_LOG", "warn")
+		.arg(log_url.clone())
+		.unwrap();
+
+	let stdout = res.stdout.clone();
+
+	res.assert().success().stderr(is_empty());
+
+	dbg!(String::from_utf8(stdout.clone()).unwrap());
+	let output: SerdeValue = serde_json::from_slice(&stdout).unwrap();
+
+	let entry = &output["entries"][0];
+	assert!(entry.is_object());
+	assert_eq!(0, entry["entry_number"].as_u64().unwrap());
+	assert_eq!(1666198004098, entry["timestamp"].as_u64().unwrap());
+	let der = b64.decode(entry["certificate"].as_str().unwrap()).unwrap();
+	let (_, x509_cert) = X509Certificate::from_der(&der).unwrap();
+	assert_eq!("CN=crt.sh", x509_cert.subject().to_string());
+
+	assert!(entry.get("chain").is_none());
+	assert!(entry.get("precert").is_none());
+}
+
+#[test]
 fn scrapes_multiple_chunks() {
 	let log = faux_log(4..5);
 
