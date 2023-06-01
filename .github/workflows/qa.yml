@@ -47,7 +47,7 @@ jobs:
         rust-toolchain:
           - stable
           - nightly
-          - 1.64.0
+          - 1.65.0
         os:
           - ubuntu-latest
           - macos-latest
