@@ -15,7 +15,7 @@ use url::Url;
 use crate::{
 	error::Error,
 	fetcher::{FetchStatus, Fetcher},
-	processor,
+	fix_url, processor,
 };
 
 const MIN_BATCH_SIZE: u64 = 100;
@@ -104,14 +104,15 @@ impl Config {
 ///
 #[allow(clippy::result_large_err)] // Oh shoosh
 #[allow(clippy::too_many_lines)] // TODO: refactor
-pub fn run<O>(cfg: &Config, args: O::Args) -> Result<(), Error>
+pub fn run<O>(cfg: &Config, args: O::Args) -> Result<u64, Error>
 where
 	O: GenServer<Request = processor::Request, StopReason = ()> + Send + Sync + 'static,
 {
 	log::debug!("Running a scrape with configuration: {cfg:?}");
 
-	let sth_url = cfg
-		.log_url
+	let log_url = fix_url(cfg.log_url.clone());
+
+	let sth_url = log_url
 		.join("ct/v1/get-sth")
 		.map_err(|e| Error::URLError("STH".to_string(), e))?;
 	log::debug!("Using STH URL {sth_url:?}");
@@ -129,8 +130,9 @@ where
 		.map_err(|e| Error::system(format!("failed to start {}", type_name::<O>()), e))?;
 	o.cast(processor::Request::Metadata(sth));
 
-	if cfg.offset >= tree_size {
+	let fetched_count = if cfg.offset >= tree_size {
 		log::warn!("Not fetching any entries because the log's tree_size {tree_size} is less than the requested start position {}", cfg.offset);
+		0
 	} else {
 		let last_entry = min(tree_size, cfg.offset.saturating_add(cfg.limit))
 			.checked_sub(1)
@@ -146,7 +148,7 @@ where
 		#[allow(clippy::map_err_ignore)] // This error includes no information
 		fetchers.push(Fetcher::start(
 			0,
-			cfg.log_url.clone(),
+			log_url.clone(),
 			cfg.user_agent.clone(),
 			run_ctl.clone(),
 			o.mic()
@@ -208,7 +210,7 @@ where
 						#[allow(clippy::map_err_ignore)] // This error provides no information
 						let new_fetcher = Fetcher::start(
 							fetchers.len(),
-							cfg.log_url.clone(),
+							log_url.clone(),
 							cfg.user_agent.clone(),
 							run_ctl.clone(),
 							o.mic().map_err(|_| {
@@ -236,10 +238,12 @@ where
 				log::warn!("Fetcher {i} crashed: {e}");
 			}
 		}
-	}
+
+		last_entry.saturating_sub(cfg.offset).saturating_add(1)
+	};
 
 	o.stop(())
 		.map_err(|e| Error::system("failed to stop outputter", e))?;
 
-	Ok(())
+	Ok(fetched_count)
 }
