@@ -176,7 +176,7 @@ impl Fetcher {
 					result
 				}
 				Err(ureq::Error::Status(429, _response)) => {
-					log::info!("Got told we're doing too many requests");
+					log::debug!("Got told we're doing too many requests");
 					status.failure()?;
 					let snooze_time_millis = retry_delay_millis
 						.checked_add(
@@ -217,8 +217,7 @@ impl Fetcher {
 				Err(e) => return Err(Error::RequestError(e)),
 			};
 
-			log::debug!("Received {} entries", response.entries.len());
-			log::info!("Fetched entries {range:?}");
+			log::debug!("Received {} entries from {range:?}", response.entries.len());
 
 			let len = response.entries.len() as u64;
 			#[allow(clippy::reversed_empty_ranges)] // An empty range is what I want here

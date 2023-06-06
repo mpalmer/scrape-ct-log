@@ -202,7 +202,7 @@ where
 						.checked_add(1)
 						.ok_or_else(|| Error::arithmetic("incrementing success_count"))?;
 					if success_count > success_threshold && fetchers.len() < MAX_FETCHERS {
-						log::info!("Spawning fetch worker {}", fetchers.len());
+						log::debug!("Spawning fetch worker {}", fetchers.len());
 						success_count = 0;
 						success_threshold = success_threshold
 							.checked_add(SUCCESS_STEP)
