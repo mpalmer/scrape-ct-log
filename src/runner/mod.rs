@@ -10,6 +10,7 @@ use std::any::type_name;
 use std::cell::RefCell;
 use std::cmp::{max, min};
 use std::sync::mpsc;
+use std::thread::available_parallelism;
 use url::Url;
 
 use crate::{
@@ -21,7 +22,6 @@ use crate::{
 const MIN_BATCH_SIZE: u64 = 100;
 const MAX_BATCH_SIZE: u64 = 10_000;
 const SUCCESS_STEP: usize = 5;
-const MAX_FETCHERS: usize = 64;
 
 #[derive(Clone, Debug)]
 pub(crate) struct RunCtl {
@@ -134,6 +134,15 @@ where
 		log::warn!("Not fetching any entries because the log's tree_size {tree_size} is less than the requested start position {}", cfg.offset);
 		0
 	} else {
+		let max_fetchers = available_parallelism().map_or_else(
+			|e| {
+				log::warn!("Unable to determine available parallelism: {e}");
+				1
+			},
+			std::num::NonZeroUsize::get,
+		);
+		log::info!("Using up to {max_fetchers} parallel fetchers");
+
 		let last_entry = min(tree_size, cfg.offset.saturating_add(cfg.limit))
 			.checked_sub(1)
 			.ok_or_else(|| Error::arithmetic("adjusting last_entry"))?;
@@ -167,7 +176,7 @@ where
 				MIN_BATCH_SIZE,
 				min(
 					MAX_BATCH_SIZE,
-					div_floor(entries_to_fetch, MAX_FETCHERS as u64),
+					div_floor(entries_to_fetch, max_fetchers as u64),
 				),
 			);
 
@@ -201,7 +210,7 @@ where
 					success_count = success_count
 						.checked_add(1)
 						.ok_or_else(|| Error::arithmetic("incrementing success_count"))?;
-					if success_count > success_threshold && fetchers.len() < MAX_FETCHERS {
+					if success_count > success_threshold && fetchers.len() < max_fetchers {
 						log::debug!("Spawning fetch worker {}", fetchers.len());
 						success_count = 0;
 						success_threshold = success_threshold
