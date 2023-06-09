@@ -68,6 +68,7 @@ pub struct Config {
 	user_agent: String,
 	limit: u64,
 	offset: u64,
+	initial_fetchers: usize,
 	max_fetchers: Option<usize>,
 }
 
@@ -79,6 +80,7 @@ impl Config {
 			user_agent: String::new(),
 			limit: 0,
 			offset: 0,
+			initial_fetchers: 1,
 			max_fetchers: None,
 		}
 	}
@@ -98,6 +100,12 @@ impl Config {
 	#[must_use]
 	pub fn offset(mut self, offset: u64) -> Self {
 		self.offset = offset;
+		self
+	}
+
+	#[must_use]
+	pub fn initial_fetchers(mut self, fetchers: usize) -> Self {
+		self.initial_fetchers = fetchers;
 		self
 	}
 
@@ -185,20 +193,11 @@ where
 
 		let mut fetchers: Vec<Fetcher> = vec![];
 		let mut success_count: usize = 0;
-		let mut success_threshold: usize = SUCCESS_STEP;
+		let mut success_threshold: usize = 0;
 
 		let (status_rx, run_ctl) = RunCtl::new();
 
 		let next_entry = RefCell::new(min(last_entry, cfg.offset));
-		#[allow(clippy::map_err_ignore)] // This error includes no information
-		fetchers.push(Fetcher::start(
-			0,
-			log_url.clone(),
-			cfg.user_agent.clone(),
-			run_ctl.clone(),
-			o.mic()
-				.map_err(|_| Error::internal("output thread has already been stopped"))?,
-		)?);
 		let next_batch = || {
 			let mut ne = next_entry.borrow_mut();
 
@@ -230,11 +229,23 @@ where
 			Ok(range)
 		};
 
-		fetchers
-			.get(0)
-			.ok_or_else(|| Error::internal("we don't have a first fetcher"))?
-			.ctl()
-			.fetch(next_batch()?)?;
+		#[allow(clippy::map_err_ignore)] // The error we map provides no useful information
+		for i in 0..max(1, min(cfg.initial_fetchers, max_fetchers)) {
+			let fetcher = Fetcher::start(
+				i,
+				log_url.clone(),
+				cfg.user_agent.clone(),
+				run_ctl.clone(),
+				o.mic()
+					.map_err(|_| Error::internal("output thread has already been stopped"))?,
+			)?;
+			fetcher.ctl().fetch(next_batch()?)?;
+
+			fetchers.push(fetcher);
+			success_threshold = success_threshold
+				.checked_add(SUCCESS_STEP)
+				.ok_or_else(|| Error::arithmetic("advancing success_threshold"))?;
+		}
 
 		while {
 			let ne = next_entry.borrow();
