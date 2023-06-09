@@ -11,6 +11,7 @@ use std::cell::RefCell;
 use std::cmp::{max, min};
 use std::sync::mpsc;
 use std::thread::available_parallelism;
+use std::time::{SystemTime, UNIX_EPOCH};
 use url::Url;
 
 use crate::{
@@ -67,6 +68,7 @@ pub struct Config {
 	user_agent: String,
 	limit: u64,
 	offset: u64,
+	max_fetchers: Option<usize>,
 }
 
 impl Config {
@@ -77,6 +79,7 @@ impl Config {
 			user_agent: String::new(),
 			limit: 0,
 			offset: 0,
+			max_fetchers: None,
 		}
 	}
 
@@ -97,6 +100,21 @@ impl Config {
 		self.offset = offset;
 		self
 	}
+
+	#[must_use]
+	pub fn max_fetchers(mut self, max_fetchers: usize) -> Self {
+		self.max_fetchers = Some(max_fetchers);
+		self
+	}
+}
+
+#[derive(Debug, Default)]
+#[non_exhaustive]
+pub struct RunStats {
+	pub fetched_count: u64,
+	pub sth_retrieved_at: u64,
+	pub sth_timestamp: u64,
+	pub sth_tree_size: u64,
 }
 
 /// Run a scrape according to the specified configuration, feeding the entries
@@ -104,10 +122,12 @@ impl Config {
 ///
 #[allow(clippy::result_large_err)] // Oh shoosh
 #[allow(clippy::too_many_lines)] // TODO: refactor
-pub fn run<O>(cfg: &Config, args: O::Args) -> Result<u64, Error>
+pub fn run<O>(cfg: &Config, args: O::Args) -> Result<RunStats, Error>
 where
 	O: GenServer<Request = processor::Request, StopReason = ()> + Send + Sync + 'static,
 {
+	let mut stats = RunStats::default();
+
 	log::debug!("Running a scrape with configuration: {cfg:?}");
 
 	let log_url = fix_url(cfg.log_url.clone());
@@ -126,21 +146,37 @@ where
 	log::info!("Fetched STH; tree_size={}", sth.tree_size);
 	let tree_size = sth.tree_size;
 
+	#[allow(clippy::expect_used)] // I'll take the risk
+	{
+		stats.sth_tree_size = sth.tree_size;
+		stats.sth_timestamp = sth.timestamp;
+		stats.sth_retrieved_at = SystemTime::now()
+			.duration_since(UNIX_EPOCH)
+			.map_err(|e| Error::system("we went back in time somehow", e))?
+			.as_millis()
+			.try_into()
+			.expect("wow this code has excellent shelf life");
+	}
+
 	let o = gen_server::start::<O>(args)
 		.map_err(|e| Error::system(format!("failed to start {}", type_name::<O>()), e))?;
 	o.cast(processor::Request::Metadata(sth));
 
-	let fetched_count = if cfg.offset >= tree_size {
+	stats.fetched_count = if cfg.offset >= tree_size {
 		log::warn!("Not fetching any entries because the log's tree_size {tree_size} is less than the requested start position {}", cfg.offset);
 		0
 	} else {
-		let max_fetchers = available_parallelism().map_or_else(
-			|e| {
-				log::warn!("Unable to determine available parallelism: {e}");
-				1
-			},
-			std::num::NonZeroUsize::get,
-		);
+		let max_fetchers = if let Some(max) = cfg.max_fetchers {
+			max
+		} else {
+			available_parallelism().map_or_else(
+				|e| {
+					log::warn!("Unable to determine available parallelism: {e}");
+					1
+				},
+				std::num::NonZeroUsize::get,
+			)
+		};
 		log::info!("Using up to {max_fetchers} parallel fetchers");
 
 		let last_entry = min(tree_size, cfg.offset.saturating_add(cfg.limit))
@@ -254,5 +290,5 @@ where
 	o.stop(())
 		.map_err(|e| Error::system("failed to stop outputter", e))?;
 
-	Ok(fetched_count)
+	Ok(stats)
 }
