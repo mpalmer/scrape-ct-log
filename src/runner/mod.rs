@@ -128,6 +128,12 @@ pub struct RunStats {
 /// Run a scrape according to the specified configuration, feeding the entries
 /// received to a `GenServer` of the given type.
 ///
+/// # Panics
+///
+/// This function may panic if the system time is so far in the future that the
+/// current time in milliseconds since the epoch cannot be represented as a 64
+/// bit unsigned integer.
+///
 #[allow(clippy::result_large_err)] // Oh shoosh
 #[allow(clippy::too_many_lines)] // TODO: refactor
 pub fn run<O>(cfg: &Config, args: O::Args) -> Result<RunStats, Error>
