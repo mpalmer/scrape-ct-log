@@ -7,7 +7,9 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 #[non_exhaustive]
-#[allow(missing_docs, clippy::missing_docs_in_private_items)] // if the error name and description don't explain it, a one-line comment isn't going to help either
+// if the error name and description don't explain it, a one-line comment isn't going to help either
+#[allow(missing_docs, clippy::missing_docs_in_private_items)]
+#[allow(clippy::large_enum_variant)] // I'm OK with errors being phat
 pub enum Error {
 	#[error("An internal error occurred: {0} (please report a bug!)")]
 	InternalError(String),
