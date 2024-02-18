@@ -3,19 +3,15 @@
 
 use ct_structs::v1::response::GetEntries as GetEntriesResponse;
 
-use rand::{thread_rng, Rng};
-use std::cmp::min;
 use std::ops::RangeInclusive;
 use std::sync::mpsc;
 use std::thread;
-use std::time::Duration;
 use url::Url;
 
 use crate::{error::Error, processor, runner::RunCtl};
 
-const MIN_RETRY_DELAY_MILLIS: u32 = 100;
-const MAX_RETRY_DELAY_MILLIS: u32 = 15000;
-const BASE_RETRY_SCALING_MILLIS: u32 = 50;
+mod retryer;
+use self::retryer::Retryer;
 
 #[derive(Clone, Debug)]
 pub(crate) enum FetchStatus {
@@ -153,8 +149,7 @@ impl Fetcher {
 		processor: &processor::Mic,
 	) -> Result<(), Error> {
 		log::debug!("Fetching entries {range:?} from {entries_url}");
-		let mut retry_delay_millis = MIN_RETRY_DELAY_MILLIS;
-		let mut retry_delay_scaling_millis = BASE_RETRY_SCALING_MILLIS;
+		let mut retryer = Retryer::new();
 
 		while range.start() <= range.end() {
 			log::debug!("Requesting {entries_url}, {range:?}");
@@ -171,36 +166,13 @@ impl Fetcher {
 							Error::json_parse(format!("get-entries({range:?}) response"), e)
 						})?;
 					status.success()?;
-					retry_delay_millis = MIN_RETRY_DELAY_MILLIS;
-					retry_delay_scaling_millis = BASE_RETRY_SCALING_MILLIS;
+					retryer.reset();
 					result
 				}
 				Err(ureq::Error::Status(429, _response)) => {
 					log::debug!("Got told we're doing too many requests");
 					status.failure()?;
-					let snooze_time_millis = retry_delay_millis
-						.checked_add(
-							thread_rng()
-								.gen::<u32>()
-								.rem_euclid(retry_delay_scaling_millis),
-						)
-						.ok_or_else(|| Error::arithmetic("calculating snooze_time_millis"))?;
-					thread::sleep(Duration::from_millis(snooze_time_millis.into()));
-					retry_delay_millis = min(
-						retry_delay_millis
-							.checked_mul(2)
-							.ok_or_else(|| Error::arithmetic("doubling retry_delay_millis"))?,
-						MAX_RETRY_DELAY_MILLIS,
-					);
-					retry_delay_scaling_millis = retry_delay_scaling_millis
-						.checked_add(BASE_RETRY_SCALING_MILLIS)
-						.ok_or_else(|| {
-							Error::arithmetic("increasing retry_delay_scaling_millis")
-						})?;
-					continue;
-				}
-				Err(ureq::Error::Status(code, response)) if (400..=499).contains(&code) => {
-					log::warn!("we sent a response that the server didn't understand.  Server returned HTTP {code}, {:?}", response.into_string().map_err(|e| Error::system("failed to read HTTP response body", e))?);
+					retryer.failure()?;
 					continue;
 				}
 				Err(ureq::Error::Status(code, response)) if code >= 500 => {
@@ -211,7 +183,13 @@ impl Fetcher {
 							.map_err(|e| Error::system("failed to read HTTP response body", e))?
 					);
 					status.failure()?;
-					thread::sleep(Duration::from_secs(1));
+					retryer.failure()?;
+					continue;
+				}
+				Err(ureq::Error::Transport(t)) => {
+					log::info!("HTTP transport error: {}", t);
+					status.failure()?;
+					retryer.failure()?;
 					continue;
 				}
 				Err(e) => return Err(Error::RequestError(e)),
