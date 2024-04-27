@@ -21,7 +21,7 @@ struct Config {
 	log_url: Url,
 
 	/// The format of the output produced from the scrape
-	#[arg(short, long, default_value_t = OutputFormat::default(), value_parser = |s: &str| OutputFormat::try_from(s))]
+	#[arg(short, long, default_value_t, value_parser = |s: &str| OutputFormat::try_from(s))]
 	format: OutputFormat,
 
 	/// Write the scraped data to the specified file

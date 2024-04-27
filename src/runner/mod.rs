@@ -213,13 +213,8 @@ where
 				.checked_sub(*ne)
 				.ok_or_else(|| Error::arithmetic("calculating entries_to_fetch"))?;
 
-			let batch_size = max(
-				MIN_BATCH_SIZE,
-				min(
-					MAX_BATCH_SIZE,
-					div_floor(entries_to_fetch, max_fetchers as u64),
-				),
-			);
+			let batch_size = div_floor(entries_to_fetch, max_fetchers as u64)
+				.clamp(MIN_BATCH_SIZE, MAX_BATCH_SIZE);
 
 			let range = *ne..=min(
 				last_entry,
