@@ -81,7 +81,7 @@ rustflags = [
     "-Wunused_lifetimes",
     "-Wunused_macro_rules",
     "-Wunused_qualifications",
-    "-Wunused_tuple_struct_fields",
+    "-Wdead_code",
     "-Aclippy::default_trait_access",
 	# Temporary until I wrote more docs
 	"-Aclippy::missing_errors_doc",
