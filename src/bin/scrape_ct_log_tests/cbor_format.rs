@@ -19,7 +19,7 @@ fn remap(m: &Value) -> HashMap<&str, &Value> {
 		.collect()
 }
 
-fn intify(i: &ciborium::Value) -> u64 {
+fn intify(i: &Value) -> u64 {
 	i.as_integer()
 		.expect("integer to be an integer")
 		.try_into()

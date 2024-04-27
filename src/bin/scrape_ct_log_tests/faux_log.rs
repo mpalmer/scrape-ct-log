@@ -23,7 +23,7 @@ pub(crate) struct FauxLog<'a> {
 	srv: ServerHandle<'a>,
 	tree_head: GetSthResponse,
 	entries: HashMap<u64, LogEntry>,
-	pub chunk_size: u64,
+	pub(crate) chunk_size: u64,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
