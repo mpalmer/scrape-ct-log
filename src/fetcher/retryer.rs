@@ -31,7 +31,8 @@ impl Retryer {
 			.delay_millis
 			.checked_add(
 				thread_rng()
-					.gen::<u32>()
+					// JFC https://github.com/rust-random/rand/issues/1435
+					.r#gen::<u32>()
 					.rem_euclid(self.delay_scaling_millis),
 			)
 			.ok_or_else(|| Error::arithmetic("calculating snooze_time_millis"))?;
