@@ -36,9 +36,21 @@ jobs:
         run: |
           cargo audit -D warnings
 
-  nightly_compat:
+  compat:
     name: See if future Rust versions (or deps) will break anything
-    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        rust-toolchain:
+          - stable
+          - nightly
+          - 1.74.0
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout
@@ -48,12 +60,10 @@ jobs:
 
       - name: Install rust
         id: rust-install
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ matrix.rust-toolchain }}
           components: clippy
-
-      # Normally this would be where we use actions/cache, but since nightly
-      # is likely to change on every run, it doesn't seem worth it
 
       - name: Update deps
         run: |
