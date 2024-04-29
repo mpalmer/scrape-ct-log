@@ -13,3 +13,7 @@ mod range_limits;
 
 #[cfg(feature = "cbor")]
 mod cbor_format;
+
+// CBOR-only test dependency
+#[cfg(not(feature = "cbor"))]
+use ciborium as _;

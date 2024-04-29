@@ -31,6 +31,7 @@ mod dev_deps {
 	use base64 as _;
 	use bytes as _;
 	use ciborium as _;
+	use hex_literal as _;
 	use http as _;
 	use httptest as _;
 	use hyper as _;
