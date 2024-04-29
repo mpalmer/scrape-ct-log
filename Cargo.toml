@@ -59,6 +59,7 @@ serde = "1.0"
 x509-parser = "0.15"
 
 [lints.rust]
+elided_lifetimes_in_paths = "warn"
 explicit_outlives_requirements = "warn"
 future_incompatible = "warn"
 keyword_idents = "warn"
@@ -140,7 +141,6 @@ unreachable = "warn"
 unwrap_used = "warn"
 use_debug = "warn"
 wildcard_enum_match_arm = "warn"
-elided_lifetimes_in_paths = "warn"
 default_trait_access = "allow"
 # Temporary until I wrote more docs
 missing_errors_doc = "allow"
