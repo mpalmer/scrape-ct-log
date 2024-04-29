@@ -59,11 +59,13 @@ serde = "1.0"
 x509-parser = "0.15"
 
 [lints.rust]
+future_incompatible = { level = "warn", priority = -100 }
+keyword_idents = { level = "warn", priority = -100 }
+let_underscore = { level = "warn", priority = -100 }
+unused = { level = "warn", priority = -100 }
+
 elided_lifetimes_in_paths = "warn"
 explicit_outlives_requirements = "warn"
-future_incompatible = "warn"
-keyword_idents = "warn"
-let_underscore = "warn"
 missing_debug_implementations = "warn"
 non_ascii_idents = "warn"
 noop_method_call = "warn"
@@ -73,7 +75,6 @@ trivial_numeric_casts = "warn"
 unreachable_pub = "warn"
 unsafe_code = "warn"
 unsafe_op_in_unsafe_fn = "warn"
-unused = "warn"
 unused_crate_dependencies = "warn"
 unused_import_braces = "warn"
 unused_lifetimes = "warn"
@@ -82,12 +83,14 @@ unused_qualifications = "warn"
 dead_code = "warn"
 
 [lints.clippy]
-all = "warn"
+all = { level = "warn", priority = -100 }
+cargo = { level = "warn", priority = -100 }
+pedantic = { level = "warn", priority = -100 }
+
 alloc_instead_of_core = "warn"
 arithmetic_side_effects = "warn"
 as_underscore = "warn"
 assertions_on_result_states = "warn"
-cargo = "warn"
 clone_on_ref_ptr = "warn"
 dbg_macro = "warn"
 decimal_literal_representation = "warn"
@@ -115,7 +118,6 @@ non_ascii_literal = "warn"
 panic = "warn"
 panic_in_result_fn = "warn"
 partial_pub_fields = "warn"
-pedantic = "warn"
 print_stderr = "warn"
 print_stdout = "warn"
 rc_buffer = "warn"
