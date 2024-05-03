@@ -59,10 +59,10 @@ serde = "1.0"
 x509-parser = "0.15"
 
 [lints.rust]
+unused = { level = "warn", priority = -128 }
+keyword_idents = { level = "warn", priority = -127 }
 future_incompatible = { level = "warn", priority = -100 }
-keyword_idents = { level = "warn", priority = -100 }
 let_underscore = { level = "warn", priority = -100 }
-unused = { level = "warn", priority = -100 }
 
 elided_lifetimes_in_paths = "warn"
 explicit_outlives_requirements = "warn"
