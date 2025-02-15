@@ -12,7 +12,7 @@ use url::Url;
 pub fn fix_url(mut url: Url) -> Url {
 	if !url.path().ends_with('/') {
 		url.set_path(&format!("{}/", url.path()));
-	};
+	}
 	url
 }
 
