@@ -14,7 +14,7 @@ keywords = ["security", "tls", "ssl", "https", "certificate"]
 categories = ["command-line-utilities"]
 edition = "2021"
 # If this is changed, .github/workflows/{audit,qa}.yml build matrix needs updating as well
-rust-version = "1.77.0"
+rust-version = "1.84.0"
 
 [features]
 # If adding features, especially default features, ensure you update the
