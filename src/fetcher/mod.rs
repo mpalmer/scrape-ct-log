@@ -129,7 +129,7 @@ impl Fetcher {
 					if let Err(e) =
 						Self::fetch_range(&http_client, &entries_url, range, status, processor)
 					{
-						log::error!("{}", e);
+						log::error!("{e}");
 					} else {
 						status.complete(n)?;
 					}
@@ -187,7 +187,7 @@ impl Fetcher {
 					continue;
 				}
 				Err(ureq::Error::Transport(t)) => {
-					log::info!("HTTP transport error: {}", t);
+					log::info!("HTTP transport error: {t}");
 					status.failure()?;
 					retryer.failure()?;
 					continue;
