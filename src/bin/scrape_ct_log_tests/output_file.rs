@@ -22,10 +22,12 @@ fn writes_to_the_specified_file() {
 		mlog.url()
 	};
 
-	let tmpdir = mktemp::Temp::new_dir().unwrap();
-	let mut pathbuf = tmpdir.to_path_buf();
-	pathbuf.push("log_output.json");
-	let filepath = pathbuf.into_os_string().into_string().unwrap();
+	let tmpdir = temp_dir::TempDir::new().unwrap();
+	let filepath = tmpdir
+		.child("log_output.json")
+		.into_os_string()
+		.into_string()
+		.unwrap();
 
 	let res = cmd()
 		.timeout(Duration::from_secs(1))

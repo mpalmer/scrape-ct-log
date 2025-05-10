@@ -37,9 +37,9 @@ mod dev_deps {
 	use hyper as _;
 	use itertools as _;
 	use lazy_static as _;
-	use mktemp as _;
 	use predicates as _;
 	use regex as _;
 	use serde as _;
+	use temp_dir as _;
 	use x509_parser as _;
 }

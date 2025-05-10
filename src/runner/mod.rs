@@ -154,7 +154,7 @@ where
 		.call()
 		.map_err(Error::RequestError)?;
 
-	let sth: GetSthResponse = serde_json::from_reader(sth_response.into_reader())
+	let sth: GetSthResponse = serde_json::from_reader(sth_response.into_body().into_reader())
 		.map_err(|e| Error::json_parse("get-sth response", e))?;
 
 	log::info!("Fetched STH; tree_size={}", sth.tree_size);

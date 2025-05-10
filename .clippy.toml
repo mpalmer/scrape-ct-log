@@ -2,6 +2,8 @@ allowed-duplicate-crates = [
 	# These are pending Deku upgrades, https://github.com/sharksforarms/deku/issues/351
 	"strsim",
 	"syn",
+	# Sigh, ring being troublesome, *again* https://github.com/briansmith/ring/issues/2341
+	"getrandom",
 	# And these I do not, and will never, care about
 	"windows-sys",
 	"windows-targets",
@@ -11,5 +13,8 @@ allowed-duplicate-crates = [
 	"windows_i686_msvc",
 	"windows_x86_64_gnu",
 	"windows_x86_64_gnullvm",
-	"windows_x86_64_msvc"
+	"windows_x86_64_msvc",
+	# These are WASM-only deps, which I care very little about
+	"wasi",
+	"webpki-root-certs",
 ]

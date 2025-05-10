@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use std::{cmp::min, thread, time::Duration};
 
 use crate::Error;
@@ -29,12 +29,7 @@ impl Retryer {
 	pub(crate) fn failure(&mut self) -> Result<(), Error> {
 		let snooze_time_millis = self
 			.delay_millis
-			.checked_add(
-				thread_rng()
-					// JFC https://github.com/rust-random/rand/issues/1435
-					.r#gen::<u32>()
-					.rem_euclid(self.delay_scaling_millis),
-			)
+			.checked_add(rng().random::<u32>().rem_euclid(self.delay_scaling_millis))
 			.ok_or_else(|| Error::arithmetic("calculating snooze_time_millis"))?;
 		thread::sleep(Duration::from_millis(snooze_time_millis.into()));
 		self.delay_millis = min(

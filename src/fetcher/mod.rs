@@ -115,7 +115,12 @@ impl Fetcher {
 		processor: &processor::Mic,
 	) -> Result<(), Error> {
 		log::debug!("Fetcher::run({log_url:?})");
-		let http_client = ureq::AgentBuilder::new().user_agent(user_agent).build();
+		let http_client = ureq::Agent::new_with_config(
+			ureq::Agent::config_builder()
+				.user_agent(user_agent)
+				.http_status_as_error(false)
+				.build(),
+		);
 		let entries_url = log_url
 			.join("ct/v1/get-entries")
 			.map_err(|e| Error::system("failed to construct get-entries URL", e))?;
@@ -156,38 +161,40 @@ impl Fetcher {
 
 			let response = match client
 				.get(entries_url.as_ref())
-				.query("start", &format!("{}", range.start()))
-				.query("end", &format!("{}", range.end()))
+				.query("start", format!("{}", range.start()))
+				.query("end", format!("{}", range.end()))
 				.call()
 			{
-				Ok(response) => {
-					let result: GetEntriesResponse =
-						serde_json::from_reader(response.into_reader()).map_err(|e| {
-							Error::json_parse(format!("get-entries({range:?}) response"), e)
-						})?;
-					status.success()?;
-					retryer.reset();
-					result
-				}
-				Err(ureq::Error::Status(429, _response)) => {
+				Ok(response) if response.status().as_u16() == 429 => {
 					log::debug!("Got told we're doing too many requests");
 					status.failure()?;
 					retryer.failure()?;
 					continue;
 				}
-				Err(ureq::Error::Status(code, response)) if code >= 500 => {
+				Ok(response) if response.status().as_u16() >= 500 => {
 					log::info!(
-						"HTTP server error {code}: {:?}",
+						"HTTP server error {}: {:?}",
+						response.status().as_u16(),
 						response
-							.into_string()
+							.into_body()
+							.read_to_string()
 							.map_err(|e| Error::system("failed to read HTTP response body", e))?
 					);
 					status.failure()?;
 					retryer.failure()?;
 					continue;
 				}
-				Err(ureq::Error::Transport(t)) => {
-					log::info!("HTTP transport error: {t}");
+				Ok(response) => {
+					let result: GetEntriesResponse =
+						serde_json::from_reader(response.into_body().into_reader()).map_err(
+							|e| Error::json_parse(format!("get-entries({range:?}) response"), e),
+						)?;
+					status.success()?;
+					retryer.reset();
+					result
+				}
+				Err(ureq::Error::Io(t)) => {
+					log::info!("HTTP I/O error: {t}");
 					status.failure()?;
 					retryer.failure()?;
 					continue;

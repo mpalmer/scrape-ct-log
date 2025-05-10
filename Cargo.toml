@@ -35,11 +35,11 @@ ct-structs = { git = "https://github.com/mpalmer/ct-structs" }
 gen_server = { git = "https://github.com/mpalmer/gen_server" }
 log = "0.4"
 num = "0.4"
-rand = "0.8"
+rand = "0.9"
 serde_json = "1.0"
 flexi_logger = { version = "0.25", features = ["is-terminal"] }
 thiserror = "1.0"
-ureq = "2.6"
+ureq = { version = "3.0", default-features = false, features = ["gzip", "platform-verifier"] }
 url = "2.3"
 
 [dev-dependencies]
@@ -52,10 +52,10 @@ http = "0.2"
 hyper = "0.14"
 itertools = "0.10"
 lazy_static = "1.4"
-mktemp = "0.5"
 predicates = "3.0"
 regex = "1.8"
 serde = "1.0"
+temp-dir = "0.1"
 x509-parser = "0.15"
 
 [lints.rust]
