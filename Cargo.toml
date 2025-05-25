@@ -39,8 +39,12 @@ rand = "0.9"
 serde_json = "1.0"
 flexi_logger = { version = "0.25", features = ["is-terminal"] }
 thiserror = "1.0"
-ureq = { version = "3.0", default-features = false, features = ["gzip", "platform-verifier"] }
+ureq = { version = "3.0", features = ["platform-verifier"] }
 url = "2.3"
+
+# Exact deps to avoid dupe-version alerts, because they've made their 0.26 releases depend on the 1.0 releases
+webpki-roots = { version = "=0.26.8", default-features = false }
+webpki-root-certs = { version = "=0.26.8", default-features = false }
 
 [dev-dependencies]
 assert_cmd = "2.0"

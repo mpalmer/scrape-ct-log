@@ -106,6 +106,10 @@ use serde_json as _;
 use thiserror as _;
 use ureq as _;
 
+// deps as workaround for packaging derpiness
+use webpki_root_certs as _;
+use webpki_roots as _;
+
 #[cfg(feature = "cbor")]
 use ciborium_io as _;
 #[cfg(feature = "cbor")]

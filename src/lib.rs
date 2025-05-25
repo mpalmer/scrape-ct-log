@@ -19,6 +19,10 @@ mod binary_deps {
 	use flexi_logger as _;
 }
 
+// These deps only exist because their maintainers are unhinged
+use webpki_root_certs as _;
+use webpki_roots as _;
+
 // This isn't actually *used* anywhere, but we need to specify it as a dep
 // so we can turn on the std feature
 #[cfg(feature = "cbor")]

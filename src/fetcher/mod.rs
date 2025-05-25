@@ -115,12 +115,16 @@ impl Fetcher {
 		processor: &processor::Mic,
 	) -> Result<(), Error> {
 		log::debug!("Fetcher::run({log_url:?})");
-		let http_client = ureq::Agent::new_with_config(
-			ureq::Agent::config_builder()
-				.user_agent(user_agent)
-				.http_status_as_error(false)
-				.build(),
-		);
+		let http_client = ureq::Agent::config_builder()
+			.tls_config(
+				ureq::tls::TlsConfig::builder()
+					.root_certs(ureq::tls::RootCerts::PlatformVerifier)
+					.build(),
+			)
+			.user_agent(user_agent)
+			.http_status_as_error(false)
+			.build()
+			.new_agent();
 		let entries_url = log_url
 			.join("ct/v1/get-entries")
 			.map_err(|e| Error::system("failed to construct get-entries URL", e))?;

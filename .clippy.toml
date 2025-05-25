@@ -16,5 +16,4 @@ allowed-duplicate-crates = [
 	"windows_x86_64_msvc",
 	# These are WASM-only deps, which I care very little about
 	"wasi",
-	"webpki-root-certs",
 ]
