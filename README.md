@@ -155,7 +155,7 @@ scrape-ct-log -h
 # Structure of the output
 
 The output produced by `scrape-ct-log` is a serialized structure of metadata and certificate entries.
-Regardless of the actual *format* being used (JSON, MsgPack, etc), it will always have this same structure.
+Regardless of the actual *format* being used (JSON, CBOR, etc), it will always have this same structure.
 
 Every field has its data type listed after the field name.
 The "basic" types are defined below, while structured subtypes (indicated with angle brackets around the name, such as `<entry>`) have their own definition in a subsection below.
@@ -172,7 +172,7 @@ A list of arbitrary length of a given type is indicated as `[type]`, such as `[<
     If the format supports some sort of "binary sequence" type, it will be used directly.
     The formats that support direct encoding are:
 
-    * `msgpack`
+    * `cbor`
 
     For formats that don't directly support binary sequences, the data will be encoded into a UTF-8 string using base64 with the [RFC3548 alphabet](https://datatracker.ietf.org/doc/html/rfc3548#section-3) and no trailing padding (the pointless `=` characters).
     The formats that will produce base64-encoded `bytes` are:
