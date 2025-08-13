@@ -150,3 +150,5 @@ wildcard_enum_match_arm = "warn"
 default_trait_access = "allow"
 # Temporary until I wrote more docs
 missing_errors_doc = "allow"
+# This really is more trouble than it's worth
+multiple_crate_versions = "allow"
