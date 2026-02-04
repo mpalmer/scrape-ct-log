@@ -20,6 +20,7 @@ mod binary_deps {
 }
 
 // These deps only exist because their maintainers are unhinged
+use time as _;
 use webpki_root_certs as _;
 use webpki_roots as _;
 
