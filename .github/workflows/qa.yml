@@ -23,7 +23,7 @@ jobs:
           submodules: true
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo
@@ -68,7 +68,7 @@ jobs:
           submodules: true
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo
@@ -107,7 +107,7 @@ jobs:
           submodules: true
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo
