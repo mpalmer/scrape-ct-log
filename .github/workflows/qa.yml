@@ -18,12 +18,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+        uses: actions/checkout@v6
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo
@@ -63,12 +61,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+        uses: actions/checkout@v6
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo
@@ -102,12 +98,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
+        uses: actions/checkout@v6
 
       - name: Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cargo
@@ -132,17 +126,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Install action-validator with asdf
-        uses: asdf-vm/actions/install@v3
-        with:
-          tool_versions: |
-            action-validator 0.5.1
+        uses: actions/checkout@v6
 
       - name: Lint Actions
-        run: |
-          find .github/workflows -type f \( -iname \*.yaml -o -iname \*.yml \) \
-            | xargs -I {} action-validator --verbose {}
+        uses: mpalmer/action-validator@f55349f367686fa1df22f6e07f90f7cf88a9b28b
+        with:
+          version: latest
